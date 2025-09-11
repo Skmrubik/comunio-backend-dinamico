@@ -8,17 +8,25 @@ public class Puntos {
 	@Id
 	private String idPuntos;
 	private Integer idJugador;
+	private String nombre;
 	private Integer puntosJornada;
 	private Integer goles;
 	private Integer numJornada;
 	private Integer idEquipo;
-	private Integer idParticipante;
+	private Integer posicion;
 	
 	public String getIdPuntos() {
 		return idPuntos;
 	}
 	public void setIdPuntos(String idPuntos) {
 		this.idPuntos = idPuntos;
+	}
+	
+	public String getNombre() {
+		return nombre;
+	}
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
 	}
 	public Integer getIdJugador() {
 		return idJugador;
@@ -50,14 +58,10 @@ public class Puntos {
 	public void setIdEquipo(Integer idEquipo) {
 		this.idEquipo = idEquipo;
 	}
-	public Integer getIdParticipante() {
-		return idParticipante;
+	public Integer getPosicion() {
+		return posicion;
 	}
-	public void setIdParticipante(Integer idParticipante) {
-		this.idParticipante = idParticipante;
+	public void setPosicion(Integer posicion) {
+		this.posicion = posicion;
 	}
-	
-	
-	   
-
 }

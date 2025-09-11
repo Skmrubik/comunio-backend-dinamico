@@ -5,13 +5,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.back_comunio_dinamico.entities.JornadasAcumuladas;
 import com.back_comunio_dinamico.entities.Jugador;
 import com.back_comunio_dinamico.entities.Partido;
+import com.back_comunio_dinamico.entities.Puntos;
 import com.back_comunio_dinamico.entities.Resultado;
+import com.back_comunio_dinamico.repositories.JornadasAcumuladasRepository;
+import com.back_comunio_dinamico.repositories.PuntosRepository;
 
 public class ControllerPartido {
 
-	
 	public ControllerPartido() {
 	}
 
@@ -43,17 +48,17 @@ public class ControllerPartido {
 		return result;
 	}
 	
-	public Resultado generarPuntosPartido(Partido partido, Resultado result) {
+	public Resultado generarPuntosPartido(PuntosRepository puntosRepository, Partido partido, Resultado result) {
 		List<Jugador> jugadoresLocales = partido.getJugadoresLocales();
 		List<Jugador> jugadoresVisitantes = partido.getJugadoresVisitantes();
 		
 		List<Integer> probabilidadGolesLocal = getArrayProbabilidadGoles(jugadoresLocales);
 		List<Integer> goleadoresLocal = getGoleadores(result.getResultadoLocal(), probabilidadGolesLocal);		
-		setPuntosJugadores(jugadoresLocales, goleadoresLocal);
+		setPuntosJugadores(puntosRepository,jugadoresLocales, goleadoresLocal, partido.getNumJornada());
 		
 		List<Integer> probabilidadGolesVisitantes = getArrayProbabilidadGoles(jugadoresVisitantes);		
 		List<Integer> goleadoresVisitantes = getGoleadores(result.getResultadoVisitante(), probabilidadGolesVisitantes);
-		setPuntosJugadores(jugadoresVisitantes, goleadoresVisitantes);
+		setPuntosJugadores(puntosRepository,jugadoresVisitantes, goleadoresVisitantes, partido.getNumJornada());
 		
 		result.setJugadoresLocales(jugadoresLocales);
 		result.setJugadoresVisitantes(jugadoresVisitantes);
@@ -103,7 +108,8 @@ public class ControllerPartido {
 		return goleadores;
 	}
 	
-	public void setPuntosJugadores(List<Jugador> jugadores, List<Integer> goleadores) {
+	public void setPuntosJugadores(PuntosRepository puntosRepository,List<Jugador> jugadores, List<Integer> goleadores,
+			Integer numJornada) {
 		for	(Jugador jugador:jugadores) {
 			int goles = getGolesJugador(goleadores, jugador.getIdJugador());
 			int puntosPorGoles = getPuntosPorGoles(jugador, goles);
@@ -114,6 +120,15 @@ public class ControllerPartido {
 			int puntosPartido = (int) Math.round((media+goles) + (desviacionEstandar * random.nextGaussian()));
 			jugador.setPuntosJornada(puntosPartido + puntosPorGoles);
 			jugador.setGoles(goles);
+			Puntos puntos = new Puntos();
+			puntos.setIdEquipo(jugador.getIdEquipo().getIdEquipo());
+			puntos.setIdJugador(jugador.getIdJugador());
+			puntos.setPuntosJornada(jugador.getPuntosJornada());
+			puntos.setNumJornada(numJornada);
+			puntos.setPosicion(jugador.getPosicion());
+			puntos.setGoles(goles);
+			puntos.setNombre(jugador.getNombre());
+			puntosRepository.save(puntos);
 		}
 	}
 }

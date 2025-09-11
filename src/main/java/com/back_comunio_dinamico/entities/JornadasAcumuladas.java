@@ -3,18 +3,21 @@ package com.back_comunio_dinamico.entities;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "jorandas_acumuladas")
+@Document(collection = "jornadas_acumuladas")
 public class JornadasAcumuladas {
 	
 	@Id
 	private String idJornadaAcumulada;
 	private Integer numeroJornada;
-	private Integer idPartido;
 	private Integer idEquipo1;
 	private Integer idEquipo2;
 	private Integer golesEquipo1;
 	private Integer golesEquipo2;
 	
+	
+	public JornadasAcumuladas() {
+	}
+
 	public String getIdJornadaAcumulada() {
 		return idJornadaAcumulada;
 	}
@@ -26,12 +29,6 @@ public class JornadasAcumuladas {
 	}
 	public void setNumeroJornada(Integer numeroJornada) {
 		this.numeroJornada = numeroJornada;
-	}
-	public Integer getIdPartido() {
-		return idPartido;
-	}
-	public void setIdPartido(Integer idPartido) {
-		this.idPartido = idPartido;
 	}
 	public Integer getIdEquipo1() {
 		return idEquipo1;
