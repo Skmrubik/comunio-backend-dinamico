@@ -47,54 +47,13 @@ public class ControllerPartido {
 		List<Jugador> jugadoresLocales = partido.getJugadoresLocales();
 		List<Jugador> jugadoresVisitantes = partido.getJugadoresVisitantes();
 		
-		List<Integer> probabilidadGolesLocal = new ArrayList<>();
-		for	(Jugador jugador:jugadoresLocales) {
-			for(int i=0; i< jugador.getProbGol(); i++) {
-				probabilidadGolesLocal.add(jugador.getIdJugador());
-			}
-		}
-		List<Integer> goleadoresLocal = new ArrayList<>();
-		for (int i= 0; i<result.getResultadoLocal(); i++) {
-			Random r= new Random();
-			int r1 = r.nextInt(probabilidadGolesLocal.size());
-			goleadoresLocal.add(probabilidadGolesLocal.get(r1));
-		}
-		for	(Jugador jugador:jugadoresLocales) {
-			int goles = getGolesJugador(goleadoresLocal, jugador.getIdJugador());
-			int puntosPorGoles = getPuntosPorGoles(jugador, goles);
-			Random random = new Random();
-			
-			float media = jugador.getNivel();
-			float desviacionEstandar = 1.6F;
-			int puntosPartido = (int) Math.round((media+goles) + (desviacionEstandar * random.nextGaussian()));
-			jugador.setPuntosJornada(puntosPartido + puntosPorGoles);
-			jugador.setGoles(goles);
-		}
+		List<Integer> probabilidadGolesLocal = getArrayProbabilidadGoles(jugadoresLocales);
+		List<Integer> goleadoresLocal = getGoleadores(result.getResultadoLocal(), probabilidadGolesLocal);		
+		setPuntosJugadores(jugadoresLocales, goleadoresLocal);
 		
-		List<Integer> probabilidadGolesVisitantes = new ArrayList<>();
-		for	(Jugador jugador:jugadoresVisitantes) {
-			for(int i=0; i< jugador.getProbGol(); i++) {
-				probabilidadGolesVisitantes.add(jugador.getIdJugador());
-			}
-		}
-		
-		List<Integer> goleadoresVisitantes = new ArrayList<>();
-		for (int i= 0; i<result.getResultadoVisitante(); i++) {
-			Random r= new Random();
-			int r1 = r.nextInt(probabilidadGolesVisitantes.size());
-			goleadoresVisitantes.add(probabilidadGolesVisitantes.get(r1));
-		}
-		for	(Jugador jugador:jugadoresVisitantes) {
-			int goles = getGolesJugador(goleadoresVisitantes, jugador.getIdJugador());
-			int puntosPorGoles = getPuntosPorGoles(jugador, goles);
-			Random random = new Random();
-			
-			float media = jugador.getNivel();
-			float desviacionEstandar = 1.6F;
-			int puntosPartido = (int) Math.round(media+(goles) + (desviacionEstandar * random.nextGaussian()));
-			jugador.setPuntosJornada(puntosPartido + puntosPorGoles);
-			jugador.setGoles(goles);
-		}
+		List<Integer> probabilidadGolesVisitantes = getArrayProbabilidadGoles(jugadoresVisitantes);		
+		List<Integer> goleadoresVisitantes = getGoleadores(result.getResultadoVisitante(), probabilidadGolesVisitantes);
+		setPuntosJugadores(jugadoresVisitantes, goleadoresVisitantes);
 		
 		result.setJugadoresLocales(jugadoresLocales);
 		result.setJugadoresVisitantes(jugadoresVisitantes);
@@ -122,5 +81,39 @@ public class ControllerPartido {
 			puntosPorGoles = goles*3;
 		}
 		return puntosPorGoles;
+	}
+	
+	public List<Integer> getArrayProbabilidadGoles(List<Jugador> jugadores){
+		List<Integer> probabilidadGoles = new ArrayList<>();
+		for	(Jugador jugador:jugadores) {
+			for(int i=0; i< jugador.getProbGol(); i++) {
+				probabilidadGoles.add(jugador.getIdJugador());
+			}
+		}
+		return probabilidadGoles;
+	}
+	
+	public List<Integer> getGoleadores(Integer golesTotales, List<Integer> probabilidadGoles){
+		List<Integer> goleadores = new ArrayList<>();
+		for (int i= 0; i<golesTotales; i++) {
+			Random r= new Random();
+			int r1 = r.nextInt(probabilidadGoles.size());
+			goleadores.add(probabilidadGoles.get(r1));
+		}
+		return goleadores;
+	}
+	
+	public void setPuntosJugadores(List<Jugador> jugadores, List<Integer> goleadores) {
+		for	(Jugador jugador:jugadores) {
+			int goles = getGolesJugador(goleadores, jugador.getIdJugador());
+			int puntosPorGoles = getPuntosPorGoles(jugador, goles);
+			Random random = new Random();
+			
+			float media = jugador.getNivel();
+			float desviacionEstandar = 1.6F;
+			int puntosPartido = (int) Math.round((media+goles) + (desviacionEstandar * random.nextGaussian()));
+			jugador.setPuntosJornada(puntosPartido + puntosPorGoles);
+			jugador.setGoles(goles);
+		}
 	}
 }
