@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.back_comunio_dinamico.controllers.ControllerPartido;
+import com.back_comunio_dinamico.entities.Jugador;
 import com.back_comunio_dinamico.entities.Partido;
 import com.back_comunio_dinamico.entities.Resultado;
 import com.back_comunio_dinamico.repositories.JornadasAcumuladasRepository;
@@ -25,39 +28,21 @@ public class JornadasAcumuladasService {
 	@Autowired
 	JornadasAcumuladasRepository jornadasAcumuladasRepository;
 	
+	ControllerPartido controllerPartido = new ControllerPartido();
+	
 	@Transactional
 	@PostMapping("/insertPartido")
 	public ResponseEntity<Resultado> insertPartido(@RequestBody Partido partido) {
 		try {
 			//Atributos por defecto
-			Integer golesLocal = partido.getEquipoLocal().getGolesCasa() + partido.getEquipoVisitante().getGolesFuera() + 2;
-			Integer golesVisitante = partido.getEquipoLocal().getGolesFuera() + partido.getEquipoVisitante().getGolesCasa();
-			List<Integer> distribucion = new ArrayList<>();
-			for (int i=0 ; i<golesLocal+golesVisitante; i++) {
-				if(i< golesLocal) {
-					distribucion.add(0);
-				} else {
-					distribucion.add(1);
-				}
-			}
-			List<Integer> distribucionGolesPartido = Arrays.asList(0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,
-					2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,6,6,7,8,9);
-			Random r= new Random();
-			int r1 = r.nextInt(79);
-			Integer golesPartido = distribucionGolesPartido.get(r1);
-			Resultado result = new Resultado(0, 0);
-			for (int i = 0; i<golesPartido; i++) {
-				int r2 = r.nextInt(golesLocal+golesVisitante);
-				if (distribucion.get(r2)==0) {
-					result.addGolLocal();
-				} else {
-					result.addGolVisitante();
-				}
-			}
+			Resultado result = controllerPartido.generarResultadoPartido(partido);
+			Resultado resultadoPuntos = controllerPartido.generarPuntosPartido(partido, result);
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		} catch (Exception e) {
 			System.out.println(e);
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	
 }
