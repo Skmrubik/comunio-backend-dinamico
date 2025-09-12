@@ -13,5 +13,8 @@ public interface JornadasAcumuladasRepository extends MongoRepository<JornadasAc
 	
 	@Query("{ 'numeroJornada' : ?0 }")
     List<JornadasAcumuladas> findPartidosByNumJornada(Integer numJornada);
+	
+	@Query("{ '$and': [{ 'numeroJornada': ?0 }, { 'idEquipo1': ?1 }] }")
+    JornadasAcumuladas findPartidoByNumJornadaAndEquipo(Integer numJornada, Integer idEquipoLocal);
 
 }

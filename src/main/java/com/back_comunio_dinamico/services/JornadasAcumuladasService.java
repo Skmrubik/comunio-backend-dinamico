@@ -76,6 +76,20 @@ public class JornadasAcumuladasService {
 		}
 	}
 	
+	@GetMapping("/getPartidoJornada")
+	private ResponseEntity<JornadasAcumuladas> getPartidoJornada(@RequestParam String numJornada,
+			@RequestParam String idEquipoLocal){
+		try {
+			Integer num = Integer.parseInt(numJornada);
+			Integer idE = Integer.parseInt(idEquipoLocal);
+			JornadasAcumuladas partido = jornadasAcumuladasRepository.findPartidoByNumJornadaAndEquipo(num, idE);
+			return new ResponseEntity<>(partido, HttpStatus.OK);
+		} catch (Exception e) {
+			System.out.println(e);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 	@GetMapping("/getJugadoresPartidoJornada")
 	private ResponseEntity<List<Puntos>> getJugadoresPartidoJornada(@RequestParam String numJornada,
 			@RequestParam String equipo){
