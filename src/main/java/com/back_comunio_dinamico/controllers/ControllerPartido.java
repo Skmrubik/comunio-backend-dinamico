@@ -9,15 +9,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.back_comunio_dinamico.entities.JornadasAcumuladas;
 import com.back_comunio_dinamico.entities.Jugador;
+import com.back_comunio_dinamico.entities.MensajeJugadorDTO;
 import com.back_comunio_dinamico.entities.Partido;
 import com.back_comunio_dinamico.entities.Puntos;
 import com.back_comunio_dinamico.entities.Resultado;
 import com.back_comunio_dinamico.repositories.JornadasAcumuladasRepository;
 import com.back_comunio_dinamico.repositories.PuntosRepository;
+import com.back_comunio_dinamico.services.KafkaProducerService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ControllerPartido {
+	private final KafkaProducerService kafkaProducerService;
 
-	public ControllerPartido() {
+
+	public ControllerPartido(KafkaProducerService kafkaProducerService) {
+		this.kafkaProducerService = kafkaProducerService;
 	}
 
 	public Resultado generarResultadoPartido(Partido partido) {
@@ -48,7 +55,7 @@ public class ControllerPartido {
 		return result;
 	}
 	
-	public Resultado generarPuntosPartido(PuntosRepository puntosRepository, Partido partido, Resultado result) {
+	public Resultado generarPuntosPartido(PuntosRepository puntosRepository, Partido partido, Resultado result) throws JsonProcessingException {
 		List<Jugador> jugadoresLocales = partido.getJugadoresLocales();
 		List<Jugador> jugadoresVisitantes = partido.getJugadoresVisitantes();
 		
@@ -109,7 +116,7 @@ public class ControllerPartido {
 	}
 	
 	public void setPuntosJugadores(PuntosRepository puntosRepository,List<Jugador> jugadores, List<Integer> goleadores,
-			Integer numJornada) {
+			Integer numJornada) throws JsonProcessingException {
 		for	(Jugador jugador:jugadores) {
 			int goles = getGolesJugador(goleadores, jugador.getIdJugador());
 			int puntosPorGoles = getPuntosPorGoles(jugador, goles);
@@ -128,6 +135,10 @@ public class ControllerPartido {
 			puntos.setPosicion(jugador.getPosicion());
 			puntos.setGoles(goles);
 			puntos.setNombre(jugador.getNombre());
+			MensajeJugadorDTO json = new MensajeJugadorDTO(jugador.getIdJugador(),jugador.getPuntosJornada(), jugador.getGoles());
+			ObjectMapper mapper = new ObjectMapper();
+			String mensaje = mapper.writeValueAsString(json);
+			kafkaProducerService.sendMessage(json);
 			puntosRepository.save(puntos);
 		}
 	}

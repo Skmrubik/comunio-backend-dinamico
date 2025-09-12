@@ -3,14 +3,24 @@ package com.back_comunio_dinamico.services;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Collections;
+import java.util.HashMap;
 
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +38,7 @@ import com.back_comunio_dinamico.repositories.JornadasAcumuladasRepository;
 import com.back_comunio_dinamico.repositories.PuntosRepository;
 
 
-
+@Service
 @RestController
 public class JornadasAcumuladasService {
 
@@ -37,12 +47,16 @@ public class JornadasAcumuladasService {
 	
 	@Autowired
 	PuntosRepository puntosRepository;
+    
+	ControllerPartido controllerPartido;
 	
-	ControllerPartido controllerPartido = new ControllerPartido();
+	KafkaProducerService kafkaProducerService;
 	
-	public JornadasAcumuladasService() {
+	public JornadasAcumuladasService(KafkaProducerService kafkaProducerService) {
+		this.kafkaProducerService = kafkaProducerService;
+		this.controllerPartido = new ControllerPartido(kafkaProducerService);
 	}
-
+	
 	@Transactional
 	@PostMapping("/insertPartido")
 	public ResponseEntity<Resultado> insertPartido(@RequestBody Partido partido) {
@@ -57,6 +71,7 @@ public class JornadasAcumuladasService {
 			jornadaAcumulada.setNumeroJornada(partido.getNumJornada());
 			jornadasAcumuladasRepository.save(jornadaAcumulada);
 			Resultado resultadoPuntos = controllerPartido.generarPuntosPartido(puntosRepository, partido, result);
+			
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		} catch (Exception e) {
 			System.out.println(e);
