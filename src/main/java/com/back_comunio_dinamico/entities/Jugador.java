@@ -5,7 +5,7 @@ public class Jugador {
 	
 	private String nombre;
 	
-	private Integer puntosTotales;
+	private Float puntosTotales;
 	
 	private Float puntosMedia;
 	
@@ -43,11 +43,11 @@ public class Jugador {
 		this.nombre = nombre;
 	}
 
-	public Integer getPuntosTotales() {
+	public Float getPuntosTotales() {
 		return puntosTotales;
 	}
 
-	public void setPuntosTotales(Integer puntosTotales) {
+	public void setPuntosTotales(Float puntosTotales) {
 		this.puntosTotales = puntosTotales;
 	}
 
