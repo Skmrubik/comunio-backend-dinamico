@@ -131,4 +131,16 @@ public class JornadasAcumuladasService {
 		}
 	}
 	
+	@GetMapping("/borrarTodosDocumentos")
+	private ResponseEntity<Integer> borrarTodosDocumentos(){
+		try {
+			jornadasAcumuladasRepository.deleteAll();
+			puntosRepository.deleteAll();
+			return new ResponseEntity<>(1, HttpStatus.OK);
+		} catch (Exception e) {
+			System.out.println(e);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 }
