@@ -13,4 +13,7 @@ public interface PuntosRepository extends MongoRepository<Puntos, String>{
 	
 	@Query(value = "{ '$and': [{ 'numJornada': ?0 }, { 'idEquipo': ?1 }] }", sort = "{ 'posicion': 1 }")
     List<Puntos> findJugadoresEquipoJornada(Integer numJornada, Integer idEquipo);
+	
+	@Query(value = "{'idJugador': ?0}", sort = "{ 'numJornada': 1 }")
+    List<Puntos> findPuntosJugador(Integer idjugador);
 }

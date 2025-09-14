@@ -119,4 +119,16 @@ public class JornadasAcumuladasService {
 		}
 	}
 	
+	@GetMapping("/getPuntosJugador")
+	private ResponseEntity<List<Puntos>> getPuntosJugador(@RequestParam String idJugador){
+		try {
+			Integer id = Integer.parseInt(idJugador);
+			List<Puntos> puntos = puntosRepository.findPuntosJugador(id);
+			return new ResponseEntity<>(puntos, HttpStatus.OK);
+		} catch (Exception e) {
+			System.out.println(e);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 }
